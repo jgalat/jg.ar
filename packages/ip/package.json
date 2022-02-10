@@ -1,0 +1,12 @@
+{
+  "name": "ip",
+  "version": "1.0.0",
+  "description": "It returns your IP",
+  "scripts": {
+    "build": "wrangler build",
+    "dev": "wrangler dev",
+    "publish": "wrangler publish"
+  },
+  "author": "Jorge Galat <jrgglt@gmail.com>",
+  "license": "MIT"
+}
