@@ -1,0 +1,29 @@
+:root {
+  --font-family: system-ui, sans-serif;
+  --ul-padding: 1rem;
+  font-size: 16px;
+}
+
+html, body {
+  font-family: var(--font-family);
+  margin: 0;
+}
+
+main {
+  margin: 1rem; 
+}
+
+ul {
+  list-style-type: none;
+  padding-left: var(--ul-padding);
+}
+
+ul li:before {
+  content: '-';
+  position: absolute;
+  margin-left: calc(var(--ul-padding) * -1);
+}
+
+a {
+  text-decoration: none;
+}

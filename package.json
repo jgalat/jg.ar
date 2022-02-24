@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "bootstrap": "lerna bootstrap",
     "publish": "lerna run publish"
   }
 }

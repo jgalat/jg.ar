@@ -1,0 +1,15 @@
+name = "root"
+type = "javascript"
+compatibility_date = "2022-02-10"
+workers_dev = true
+
+[site]
+bucket = "./public"
+
+[build]
+command = "npm run build"
+watch_dir = "app"
+
+[build.upload]
+format="service-worker"
+main = "./build/index.js"
