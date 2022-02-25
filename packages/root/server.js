@@ -1,10 +1,23 @@
-import { createRequestHandler } from '@remix-run/cloudflare-workers';
+import {
+  createRequestHandler,
+  handleAsset,
+} from '@remix-run/cloudflare-workers';
 import * as build from '@remix-run/dev/server-build';
 
-const remixHandler = createRequestHandler({
+const remixHandleRequest = createRequestHandler({
   build,
   mode: process.env.NODE_ENV,
 });
+
+const remixHandler = async event => {
+  let response = await handleAsset(event, build);
+
+  if (!response) {
+    response = await remixHandleRequest(event);
+  }
+
+  return response;
+};
 
 const curlResponse = `
   Jorge Galat

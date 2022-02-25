@@ -24,6 +24,14 @@ ul li:before {
   margin-left: calc(var(--ul-padding) * -1);
 }
 
+ul li {
+  margin-bottom: 0.8rem;
+}
+
+ul li:last-child {
+  margin-bottom: 0;
+}
+
 a {
   text-decoration: none;
 }
