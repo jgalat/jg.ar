@@ -1,5 +1,10 @@
-import { createEventHandler } from '@remix-run/cloudflare-workers';
+import { createRequestHandler } from '@remix-run/cloudflare-workers';
 import * as build from '@remix-run/dev/server-build';
+
+const remixHandler = createRequestHandler({
+  build,
+  mode: process.env.NODE_ENV,
+});
 
 const curlResponse = `
   Jorge Galat
@@ -12,23 +17,21 @@ const curlResponse = `
 
 `;
 
-const handleEvent = event => {
+const handleEvent = async event => {
   const userAgent = event.request.headers.get('user-agent') || '';
   if (
     event.request.method === 'GET' &&
     userAgent.match(/(curl|libcurl|HTTPie)\//i)
   ) {
-    const headers = new Headers([['Content-Type', 'text/plain']]);
-    const response = new Response(curlResponse, { status: 200, headers });
-    return event.respondWith(response);
+    return new Response(curlResponse, {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
-  const remixHandler = createEventHandler({
-    build,
-    mode: process.env.NODE_ENV,
-  });
-
-  return remixHandler(event);
+  return await remixHandler(event);
 };
 
-addEventListener('fetch', handleEvent);
+addEventListener('fetch', event => {
+  event.respondWith(handleEvent(event));
+});
