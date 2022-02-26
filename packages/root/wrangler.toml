@@ -5,11 +5,11 @@ workers_dev = true
 
 [site]
 bucket = "./public"
+entry-point = "."
 
 [build]
 command = "npm run build"
 watch_dir = "app"
 
 [build.upload]
-format="service-worker"
-main = "./build/index.js"
+format = "service-worker"

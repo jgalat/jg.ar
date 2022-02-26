@@ -2,7 +2,7 @@
   "name": "ip",
   "version": "1.0.0",
   "description": "It returns your IP",
-  "license": "",
+  "license": "MIT",
   "scripts": {
     "build": "wrangler build",
     "dev": "wrangler dev",
@@ -10,6 +10,6 @@
   },
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "devDependencies": {
-    "wrangler": "^0.0.17"
+    "@cloudflare/wrangler": "^1.19.8"
   }
 }
