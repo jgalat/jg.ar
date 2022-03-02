@@ -1,7 +1,7 @@
 {
-  "name": "ip",
+  "name": "cors",
   "version": "1.0.0",
-  "description": "It returns your IP",
+  "description": "CORS Anywhere",
   "license": "MIT",
   "scripts": {
     "build": "wrangler build",
