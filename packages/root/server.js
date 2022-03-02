@@ -31,19 +31,21 @@ const remixHandler = async event => {
 
 const handleEvent = async event => {
   const userAgent = event.request.headers.get('user-agent') || '';
+  const response = await remixHandler(event);
+
   if (
     event.request.method === 'GET' &&
     userAgent.match(/(curl|libcurl|HTTPie)\//i)
   ) {
-    const response = await fetch(event.request.url);
     const html = await response.text();
+
     return new Response(`\n${htmlToText(html)}\n\n`, {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
     });
   }
 
-  return await remixHandler(event);
+  return response;
 };
 
 addEventListener('fetch', event => {
