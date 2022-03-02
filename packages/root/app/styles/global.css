@@ -1,10 +1,21 @@
 :root {
-  --font-family: system-ui, sans-serif;
-  --ul-padding: 1rem;
-  font-size: 16px;
+  --font-family: monospace;
+  --color-bg: #fff;
+  --color-fg-text: #000;
+  --color-fg-link: #e60070;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #000;
+    --color-fg-text: #fff;
+  }
 }
 
 html, body {
+  font-size: 16px;
+  color: var(--color-fg-text);
+  background-color: var(--color-bg);
   font-family: var(--font-family);
   margin: 0;
 }
@@ -14,6 +25,7 @@ main {
 }
 
 ul {
+  --ul-padding: 1rem;
   list-style-type: none;
   padding-left: var(--ul-padding);
 }
@@ -32,6 +44,12 @@ ul li:last-child {
   margin-bottom: 0;
 }
 
-a {
+a, a:visited {
+  color: var(--color-fg-link);
   text-decoration: none;
+}
+
+a:focus, a:hover {
+    outline: thick double var(--color-fg-link);
+    outline-offset: 0.1rem;
 }

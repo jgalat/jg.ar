@@ -3,6 +3,16 @@ import {
   handleAsset,
 } from '@remix-run/cloudflare-workers';
 import * as build from '@remix-run/dev/server-build';
+import { compile } from 'html-to-text';
+
+const htmlToText = compile({
+  wordwrap: 80,
+  selectors: [
+    { selector: 'h1', options: { uppercase: false } },
+    { selector: 'ul', options: { itemPrefix: '- ' } },
+    { selector: 'a', options: { ignoreHref: true } },
+  ],
+});
 
 const remixHandleRequest = createRequestHandler({
   build,
@@ -19,24 +29,15 @@ const remixHandler = async event => {
   return response;
 };
 
-const curlResponse = `
-  Jorge Galat
-
-  I'm a full stack developer based in Rosario, Argentina
-
-  - https://github.com/jgalat
-  - https://linkedin.com/in/jgalat
-  - https://twitter.com/_jgalat
-
-`;
-
 const handleEvent = async event => {
   const userAgent = event.request.headers.get('user-agent') || '';
   if (
     event.request.method === 'GET' &&
     userAgent.match(/(curl|libcurl|HTTPie)\//i)
   ) {
-    return new Response(curlResponse, {
+    const response = await fetch(event.request.url);
+    const html = await response.text();
+    return new Response(`\n${htmlToText(html)}\n\n`, {
       status: 200,
       headers: { 'Content-Type': 'text/plain' },
     });
