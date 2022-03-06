@@ -25,7 +25,7 @@ main {
 }
 
 ul {
-  --ul-padding: 1rem;
+  --ul-padding: 1.2rem;
   list-style-type: none;
   padding-left: var(--ul-padding);
 }

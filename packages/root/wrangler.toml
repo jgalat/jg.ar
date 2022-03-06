@@ -2,6 +2,9 @@ name = "root"
 type = "javascript"
 compatibility_date = "2022-02-10"
 workers_dev = true
+zone_id = "0d4d41875e63606a26f365fbd797bebc"
+account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
+route = "jg.ar/*"
 
 [site]
 bucket = "./public"

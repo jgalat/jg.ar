@@ -2,6 +2,10 @@ name = "cors"
 type = "javascript"
 workers_dev = true
 compatibility_date = "2022-02-26"
+zone_id = "0d4d41875e63606a26f365fbd797bebc"
+account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
+route = "ip.jg.ar/*"
+
 
 [vars]
 WORKERS_RS_VERSION = "0.0.9"
