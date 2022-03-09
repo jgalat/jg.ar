@@ -12,7 +12,8 @@
   }
 }
 
-html, body {
+html,
+body {
   font-size: 16px;
   color: var(--color-fg-text);
   background-color: var(--color-bg);
@@ -21,7 +22,7 @@ html, body {
 }
 
 main {
-  margin: 1rem; 
+  margin: 1rem;
 }
 
 ul {
@@ -31,7 +32,7 @@ ul {
 }
 
 ul li:before {
-  content: '-';
+  content: "-";
   position: absolute;
   margin-left: calc(var(--ul-padding) * -1);
 }
@@ -44,12 +45,14 @@ ul li:last-child {
   margin-bottom: 0;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: var(--color-fg-link);
   text-decoration: none;
 }
 
-a:focus, a:hover {
-    outline: thick double var(--color-fg-link);
-    outline-offset: 0.1rem;
+a:focus,
+a:hover {
+  outline: thick double var(--color-fg-link);
+  outline-offset: 0.1rem;
 }

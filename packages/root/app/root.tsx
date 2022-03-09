@@ -1,4 +1,8 @@
-import type { MetaFunction, LinksFunction, ErrorBoundaryComponent } from "remix";
+import type {
+  MetaFunction,
+  LinksFunction,
+  ErrorBoundaryComponent,
+} from "remix";
 import {
   Links,
   LiveReload,
@@ -9,11 +13,11 @@ import {
   Link,
 } from "remix";
 
-import styles from "~/styles/global.css";
+import styles from "styles/global.css";
 
 export const meta: MetaFunction = () => {
   return {
-    title: "jg.ar",
+    title: "Jorge Galat <jgalat>",
     description: `Jorge Galat - I'm a full stack developer based in Rosario, Argentina`,
   };
 };
