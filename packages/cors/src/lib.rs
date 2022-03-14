@@ -71,7 +71,7 @@ pub async fn main(req: Request, _env: Env, _ctx: worker::Context) -> Result<Resp
         "/" if method == Method::Get => {
             let mut headers = Headers::new();
             headers.set("Content-Type", "text/plain")?;
-            let response = Response::ok("https:://cors.jg.ar/{url}")?;
+            let response = Response::ok("https://cors.jg.ar/{url}")?;
             Ok(response.with_headers(headers))
         }
         _ if target_url.is_err() => {
