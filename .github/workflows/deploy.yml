@@ -1,0 +1,37 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Use Rust toolchain stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Install monorepo dependencies
+        run: npm install
+
+      - name: Install packages dependencies
+        run: npm run bootstrap
+
+      - name: Publish packages
+        run: npm run publish
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
