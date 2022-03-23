@@ -48,6 +48,4 @@ const handleEvent = async (event) => {
   return response;
 };
 
-addEventListener("fetch", (event) => {
-  event.respondWith(handleEvent(event));
-});
+addEventListener("fetch", (event) => event.respondWith(handleEvent(event)));

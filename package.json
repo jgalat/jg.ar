@@ -8,7 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "lerna": "lerna",
+    "link": "lerna link --force-local",
+    "bootstrap": "lerna bootstrap --force-local",
+    "build": "lerna run build",
     "publish": "lerna run publish"
   }
 }

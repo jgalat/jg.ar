@@ -1,6 +1,7 @@
 {
   "name": "cors",
   "version": "1.0.0",
+  "author": "Jorge Galat <jrgglt@gmail.com>",
   "description": "CORS Anywhere",
   "license": "MIT",
   "scripts": {
@@ -9,7 +10,6 @@
     "publish": "wrangler publish",
     "tail": "wrangler tail"
   },
-  "author": "Jorge Galat <jrgglt@gmail.com>",
   "devDependencies": {
     "@cloudflare/wrangler": "^1.19.8"
   }
