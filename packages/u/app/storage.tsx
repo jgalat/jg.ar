@@ -1,4 +1,4 @@
-import { customAlphabet } from "nanoid";
+import { customAlphabet } from "nanoid/non-secure";
 
 declare global {
   const URLS: KVNamespace;
@@ -38,7 +38,10 @@ export async function getShortURL(key: string): Promise<ShortURL> {
   return ShortURL.parse(raw);
 }
 
-const uid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 5);
+const uid = customAlphabet(
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  5
+);
 
 export async function putShortURL(
   href: string,
