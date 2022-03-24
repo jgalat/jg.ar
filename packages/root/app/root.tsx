@@ -1,8 +1,4 @@
-import type {
-  MetaFunction,
-  LinksFunction,
-  ErrorBoundaryComponent,
-} from "remix";
+import type { MetaFunction, LinksFunction } from "remix";
 import {
   Links,
   LiveReload,
@@ -10,7 +6,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  Link,
 } from "remix";
 import styles from "styles/lib/global.css";
 
@@ -43,25 +38,3 @@ export default function App() {
     </html>
   );
 }
-
-export const CatchBoundary: ErrorBoundaryComponent = ({ error }) => {
-  console.error(error);
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <main>
-          <h1>Not found :(</h1>
-          <p>
-            <Link to="/">Go back to home</Link>
-          </p>
-        </main>
-      </body>
-    </html>
-  );
-};

@@ -1,37 +1,45 @@
 import { useLoaderData, json } from "remix";
 import type { LoaderFunction } from "remix";
+import { StorageError, ShortURL, getShortURL } from "storage";
 
-export const loader: LoaderFunction = async ({ params, request }) => {
-  const url = new URL(request.url);
-  const response = await fetch(`${url.origin}/api/${params.key}`);
-  if (response.status === 404) {
-    return json({ error: "not found" });
+export const loader: LoaderFunction = async ({ params }) => {
+  try {
+    const key: string = params.key!;
+    const shortUrl = await getShortURL(key);
+    return json({ value: shortUrl });
+  } catch (e) {
+    if (e instanceof StorageError) {
+      return json({ error: e.message }, { status: 404 });
+    }
+
+    console.error(e);
+    return json({ error: "internal server error" }, { status: 500 });
   }
-
-  return json(await response.json());
 };
 
 export default function Stats() {
-  const data = useLoaderData<{
-    href?: string;
-    key?: string;
-    redirects?: number;
-    error?: string;
-  }>();
+  const data = useLoaderData<{ value?: ShortURL; error?: string }>();
 
   if (data?.error) {
     return <h1>{data?.error}</h1>;
   }
 
+  const { key, href, stats } = data?.value!;
+
   return (
     <>
-      <h1>Stats for {`https://u.jg.ar/${data?.key}`}</h1>
+      <h1>Stats for {`https://u.jg.ar/${key}`}</h1>
       <ul>
         <li>
-          Redirects to: <a href={data?.href}>{data?.href}</a>
+          Redirects to: <a href={href}>{href}</a>
         </li>
-        <li>Redirects #: {data?.redirects}</li>
+        <li>Redirects #: {stats?.redirects}</li>
       </ul>
     </>
   );
+}
+
+export function ErrorBoundary({ error }: { error: any }) {
+  console.log(error);
+  return <h1>{error}</h1>;
 }
