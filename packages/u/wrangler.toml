@@ -7,7 +7,7 @@ account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "u.jg.ar/*"
 
 kv_namespaces = [
-  { binding = "URLS", preview_id = "d3b9e0ba76f2444eb1cabe1667ddc14c", id = "e293fe5dbd964146b5d3f40d1c54f1a2" }
+  { binding = "URLS", id = "e293fe5dbd964146b5d3f40d1c54f1a2" }
 ]
 
 [site]

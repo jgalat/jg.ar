@@ -1,6 +1,7 @@
 import { useLoaderData, json } from "remix";
 import type { LoaderFunction } from "remix";
-import { StorageError, ShortURL, getShortURL } from "storage";
+import { StorageError, getShortURL } from "storage.server";
+import type { ShortURL } from "storage.server";
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {

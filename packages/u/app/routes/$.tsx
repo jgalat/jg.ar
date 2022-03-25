@@ -1,12 +1,12 @@
 import { LoaderFunction, useLoaderData, redirect, json } from "remix";
-import { StorageError, redirectShortUrl } from "storage";
+import { StorageError, redirectShortUrl } from "storage.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
     const url = new URL(request.url);
     const key = url.pathname.replace("/", "");
     const shortUrl = await redirectShortUrl(key);
-    return redirect(shortUrl.href, { status: 301 });
+    return redirect(shortUrl.href, { status: 302 });
   } catch (e) {
     if (e instanceof StorageError) {
       return json({ error: e.message }, { status: 404 });
