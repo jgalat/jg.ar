@@ -1,7 +1,7 @@
 import { Form, useTransition, useActionData, json, Link } from "remix";
 import type { ActionFunction } from "remix";
 import { StorageError, putShortURL } from "storage.server";
-import type { ShortURL } from "storage.server"
+import type { ShortURL } from "storage.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const data = Object.fromEntries(await request.formData());
@@ -28,7 +28,6 @@ export const action: ActionFunction = async ({ request }) => {
       return json({ error: "slug is too long" }, { status: 400 });
     }
   }
-
 
   try {
     const shortUrl = await putShortURL(data.url, data.slug);
@@ -81,7 +80,7 @@ export default function Index() {
                 <p>
                   {`https://u.jg.ar/${data?.value?.key}`}
                   {" - "}
-                  <Link to={`/s/${data?.value?.key}`}>Stats</Link>
+                  <Link to={`/${data?.value?.key}?stats`}>Stats</Link>
                 </p>
               )}
             </div>
