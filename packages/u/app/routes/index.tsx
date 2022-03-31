@@ -60,7 +60,7 @@ export default function Index() {
           </legend>
           <label htmlFor="url">URL</label>
           <input id="url" name="url" type="url" required />
-          <label htmlFor="slug">Slug (only [a-zA-Z_-], max length: 30)</label>
+          <label htmlFor="slug">Slug (only [0-9a-zA-Z_-], max length: 30)</label>
           <input
             id="slug"
             name="slug"
