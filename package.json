@@ -2,7 +2,8 @@
   "name": "jg.ar",
   "private": true,
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "@cloudflare/wrangler": "^1.19.8"
   },
   "packages": [
     "packages/*"
@@ -12,6 +13,7 @@
     "link": "lerna link --force-local",
     "bootstrap": "lerna bootstrap --force-local",
     "build": "lerna run build",
-    "publish": "lerna run publish"
+    "publish": "lerna run publish",
+    "wrangler": "wrangler"
   }
 }
