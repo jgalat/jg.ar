@@ -1,4 +1,4 @@
-import type { MetaFunction, LinksFunction } from "remix";
+import type { MetaFunction, LinksFunction, HeadersFunction } from "remix";
 import {
   Links,
   LiveReload,
@@ -8,6 +8,12 @@ import {
   ScrollRestoration,
 } from "remix";
 import styles from "styles/lib/global.css";
+
+export const headers: HeadersFunction = () => {
+  return {
+    "Cache-Control": "max-age=86400, s-maxage=604800",
+  }
+}
 
 export const meta: MetaFunction = () => {
   return {
