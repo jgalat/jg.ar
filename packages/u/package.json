@@ -7,7 +7,7 @@
   "sideEffects": false,
   "main": "build/index.js",
   "scripts": {
-    "postinstall": "remix setup cloudflare-workers",
+    "postinstall": "remix setup cloudflare",
     "build": "cross-env NODE_ENV=production remix build",
     "dev:remix": "cross-env NODE_ENV=development remix watch",
     "dev:miniflare": "cross-env NODE_ENV=development miniflare ./build/index.js --watch",
