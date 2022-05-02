@@ -10,7 +10,7 @@ route = "ip.jg.ar/*"
 WORKERS_RS_VERSION = "0.0.9"
 
 [build]
-command = "cargo install -q worker-build --force && worker-build --release" # required
+command = "cargo install -q worker-build && worker-build --release" # required
 
 [build.upload]
 dir = "build/worker"
