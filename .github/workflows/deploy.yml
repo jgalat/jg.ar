@@ -25,10 +25,27 @@ jobs:
           toolchain: stable
           target: wasm32-unknown-unknown
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('./packages/**/Cargo.lock') }}
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('./package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install monorepo dependencies
         run: npm install
 
       - name: Publish packages
-        run: npm run publish --workspaces
+        run: npm run publish
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
