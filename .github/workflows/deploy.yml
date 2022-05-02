@@ -25,7 +25,16 @@ jobs:
           toolchain: stable
           target: wasm32-unknown-unknown
 
-      - uses: actions/cache@v3
+      - name: NPM cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('./package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Rust cache
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/bin/
@@ -35,15 +44,8 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('./packages/**/Cargo.lock') }}
 
-      - uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('./package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install monorepo dependencies
-        run: npm install
+        run: npm ci
 
       - name: Publish packages
         run: npm run publish
