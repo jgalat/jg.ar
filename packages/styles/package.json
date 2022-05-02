@@ -8,5 +8,7 @@
     "lib": "lib"
   },
   "files": ["lib"],
-  "scripts": {}
+  "scripts": {
+    "publish": ""
+  }
 }

@@ -10,6 +10,11 @@
     "target": "ES2019",
     "strict": true,
     "baseUrl": "./app/",
-    "noEmit": true
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    }
   }
 }

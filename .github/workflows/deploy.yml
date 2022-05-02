@@ -28,10 +28,7 @@ jobs:
       - name: Install monorepo dependencies
         run: npm install
 
-      - name: Install packages dependencies
-        run: npm run bootstrap
-
       - name: Publish packages
-        run: npm run publish
+        run: npm run publish --workspaces
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

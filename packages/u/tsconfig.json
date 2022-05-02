@@ -11,6 +11,11 @@
     "strict": true,
     "baseUrl": "./app/",
     "noEmit": true,
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types"],
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    }
   }
 }
