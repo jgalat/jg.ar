@@ -9,8 +9,5 @@
     "dev": "wrangler dev",
     "publish": "wrangler publish",
     "tail": "wrangler tail"
-  },
-  "devDependencies": {
-    "@cloudflare/wrangler": "^1.19.8"
   }
 }

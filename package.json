@@ -2,7 +2,7 @@
   "name": "jg.ar",
   "private": true,
   "devDependencies": {
-    "@cloudflare/wrangler": "^1.19.8"
+    "@cloudflare/wrangler": "^1.19.12"
   },
   "workspaces": [
     "./packages/*"
