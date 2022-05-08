@@ -1,0 +1,20 @@
+name = "t"
+type = "javascript"
+compatibility_date = "2022-05-08"
+workers_dev = true
+zone_id = "0d4d41875e63606a26f365fbd797bebc"
+account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
+route = "t.jg.ar/*"
+
+kv_namespaces = [
+ { binding = "TWITTER_TOKENS", id = "97d743b0a6e8469c86f74ef316abe38f" }
+]
+
+[triggers]
+crons = ["0 12 * * THU"]
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
