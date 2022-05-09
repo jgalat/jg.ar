@@ -1,7 +1,6 @@
 import { Router } from "itty-router";
 
 import { requestToken, authorizeURL, accessToken, tweet } from "./twitter";
-import { TwitterAccessToken } from "./types";
 import { TwitterTokenStorage } from "./storage";
 
 const router = Router();
@@ -34,7 +33,7 @@ router.get("/callback", async (request) => {
       query?.oauth_verifier!
     );
 
-    await TwitterTokenStorage.putToken(
+    await TwitterTokenStorage.put(
       accessTokenResponse.user_id,
       accessTokenResponse
     );
@@ -43,33 +42,6 @@ router.get("/callback", async (request) => {
   } catch (err) {
     console.error(err);
     return new Response("authorization went wrong", { status: 500 });
-  }
-});
-
-router.post("/tweet/:user_id", async (request) => {
-  try {
-    const { params } = request;
-    if (!params?.user_id) {
-      return new Response("bad request", { status: 400 });
-    }
-
-    const token = await TwitterTokenStorage.getToken(params?.user_id);
-    if (!token) {
-      return new Response("not found", { status: 404 });
-    }
-
-    const data = await tweet(
-      token.oauth_token,
-      token.oauth_token_secret,
-      "Feliz Jueves"
-    );
-
-    return Response.redirect(
-      `https://twitter.com/${token.screen_name}/status/${data.data.id}`
-    );
-  } catch (err) {
-    console.error(err);
-    return new Response("tweet failed", { status: 500 });
   }
 });
 

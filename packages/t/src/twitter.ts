@@ -29,7 +29,6 @@ export async function requestToken(
   const query = qs.encode({
     oauth_callback: callback,
   });
-  console.log(query);
   const url = `https://api.twitter.com/oauth/request_token?${query}`;
   const authorization = oauth.toHeader(
     oauth.authorize({
@@ -46,7 +45,6 @@ export async function requestToken(
   });
 
   const text = await response.text();
-  console.log(text);
   return qs.parse(text) as TwitterRequestTokenResponse;
 }
 

@@ -11,11 +11,11 @@ class Storage<T> {
     this.kv = kv;
   }
 
-  async putToken(key: string, token: T) {
+  async put(key: string, token: T) {
     await this.kv.put(key, JSON.stringify(token));
   }
 
-  async getToken(key: string): Promise<T | null> {
+  async get(key: string): Promise<T | null> {
     const raw = await this.kv.get(key);
     if (!raw) {
       return null;
