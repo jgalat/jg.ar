@@ -1,6 +1,6 @@
 import { Router } from "itty-router";
 
-import { requestToken, authorizeURL, accessToken, tweet } from "./twitter";
+import { requestToken, authorizeURL, accessToken } from "./twitter";
 import { TwitterTokenStorage } from "./storage";
 
 const router = Router();

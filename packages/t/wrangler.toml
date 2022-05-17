@@ -1,20 +1,16 @@
 name = "t"
-type = "javascript"
-compatibility_date = "2022-05-08"
-workers_dev = true
-zone_id = "0d4d41875e63606a26f365fbd797bebc"
+compatibility_date = "2022-05-11"
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "t.jg.ar/*"
 
+main = "dist/worker.js"
+
 kv_namespaces = [
- { binding = "TWITTER_TOKENS", id = "97d743b0a6e8469c86f74ef316abe38f" }
+ { binding = "TWITTER_TOKENS", id = "97d743b0a6e8469c86f74ef316abe38f", preview_id = "e52920d844d24897831a51aaeb9ce1d8" }
 ]
 
 [triggers]
 crons = ["0 12 * * THU"]
 
 [build]
-command = "npm run build"
-
-[build.upload]
-format = "service-worker"
+command = "webpack"

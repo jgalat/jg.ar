@@ -1,22 +1,17 @@
 name = "u"
-type = "javascript"
-compatibility_date = "2022-02-10"
-workers_dev = true
-zone_id = "0d4d41875e63606a26f365fbd797bebc"
+compatibility_date = "2022-05-11"
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "u.jg.ar/*"
 
+main = "build/index.js"
+
 kv_namespaces = [
-  { binding = "URLS", id = "e293fe5dbd964146b5d3f40d1c54f1a2" }
+  { binding = "URLS", id = "e293fe5dbd964146b5d3f40d1c54f1a2", preview_id = "d3205bfd40c8499b8a924ed56b82ccad" }
 ]
 
 [site]
 bucket = "./public"
-entry-point = "."
 
 [build]
 command = "npm run build"
 watch_dir = "app"
-
-[build.upload]
-format = "service-worker"
