@@ -1,10 +1,32 @@
+import React from "react";
 import { Form, useTransition, useActionData, json, Link } from "remix";
 import type { ActionFunction } from "remix";
+import ReCAPTCHA from "react-google-recaptcha";
 import { StorageError, putShortURL } from "storage.server";
 import type { ShortURL } from "storage.server";
 
+declare global {
+  const RECAPTCHA_SITE_KEY: string;
+  const RECAPTCHA_SECRET: string;
+}
+
 export const action: ActionFunction = async ({ request }) => {
   const data = Object.fromEntries(await request.formData());
+
+  if (!data.token || typeof data.token !== "string") {
+    return json({ error: "captcha unsolved" });
+  }
+
+  const recaptcha = (await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${data.token}`,
+    {
+      method: "POST",
+    }
+  ).then((r) => r.json())) as { success: boolean };
+
+  if (!recaptcha.success) {
+    return json({ error: "u robot" });
+  }
 
   if (!data.url || typeof data.url !== "string") {
     return json({ error: "url is required" }, { status: 400 });
@@ -20,6 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
     if (typeof data.slug !== "string") {
       return json({ error: "slug needs to be string" }, { status: 400 });
     }
+
     if (!/[0-9a-zA-Z_-]*/.test(data.slug)) {
       return json({ error: "slug has incorrect pattern" }, { status: 400 });
     }
@@ -44,7 +67,22 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Index() {
   const transition = useTransition();
-  const data = useActionData<{ value?: ShortURL; error?: string }>();
+  const data = useActionData<{
+    value?: ShortURL;
+    error?: string;
+  }>();
+  const recaptchaRef = React.useRef<ReCAPTCHA>(null);
+  const tokenRef = React.useRef<HTMLInputElement>(null);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    recaptchaRef.current?.reset();
+    const token = await recaptchaRef.current?.executeAsync();
+    if (!token || !tokenRef.current) {
+      e.preventDefault();
+      return;
+    }
+    tokenRef.current.value = token;
+  };
 
   return (
     <>
@@ -52,7 +90,7 @@ export default function Index() {
       <p style={{ marginBottom: "1rem" }}>
         Reduce the size of URLs and monitor its traffic statistics.
       </p>
-      <Form method="post">
+      <Form method="post" onSubmit={onSubmit}>
         <fieldset disabled={transition.state === "submitting"}>
           <legend>
             Paste the URL to be shortened. Optionally, you can name the
@@ -60,13 +98,21 @@ export default function Index() {
           </legend>
           <label htmlFor="url">URL</label>
           <input id="url" name="url" type="url" required />
-          <label htmlFor="slug">Slug (only [0-9a-zA-Z_-], max length: 30)</label>
+          <label htmlFor="slug">
+            Slug (only [0-9a-zA-Z_-], max length: 30)
+          </label>
           <input
             id="slug"
             name="slug"
             type="text"
             pattern="[0-9a-zA-Z_-]*"
             maxLength={30}
+          />
+          <input ref={tokenRef} id="token" name="token" type="hidden" />
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            size="invisible"
+            sitekey={RECAPTCHA_SITE_KEY}
           />
           <button type="submit">
             {transition.state === "submitting" ? "Submitting..." : "Submit"}
