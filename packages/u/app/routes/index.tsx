@@ -6,7 +6,6 @@ import { StorageError, putShortURL } from "storage.server";
 import type { ShortURL } from "storage.server";
 
 declare global {
-  const RECAPTCHA_SITE_KEY: string;
   const RECAPTCHA_SECRET: string;
 }
 
@@ -112,7 +111,7 @@ export default function Index() {
           <ReCAPTCHA
             ref={recaptchaRef}
             size="invisible"
-            sitekey={RECAPTCHA_SITE_KEY}
+            sitekey="6LdyaV4gAAAAAGyKqKLS_vF4TRJbpOtipg6VWKzn"
           />
           <button type="submit">
             {transition.state === "submitting" ? "Submitting..." : "Submit"}
