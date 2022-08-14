@@ -3,23 +3,14 @@ use worker::*;
 
 fn handle_options(req: Request) -> Result<Response> {
     let headers = req.headers();
-    if headers.has("Origin")?
-        && headers.has("Access-Control-Request-Method")?
-        && headers.has("Access-Conrol-Request-Headers")?
-    {
-        let cors = Cors::default()
-            .with_origins(["*"])
-            .with_methods([Method::Get, Method::Head, Method::Post, Method::Options])
-            .with_max_age(86400)
-            .with_allowed_headers(headers.get("Access-Control-Request-Headers")?);
+    let cors = Cors::default()
+        .with_origins(["*"])
+        .with_methods([Method::Get, Method::Head, Method::Post, Method::Options])
+        .with_max_age(86400)
+        .with_allowed_headers(headers.get("Access-Control-Request-Headers")?)
+        .with_exposed_headers(headers.keys());
 
-        return Response::empty()?.with_cors(&cors);
-    }
-
-    let mut headers = Headers::default();
-    headers.append("Allow", "GET,HEAD,POST,OPTIONS")?;
-
-    Ok(Response::empty()?.with_headers(headers))
+    return Response::empty()?.with_cors(&cors);
 }
 
 async fn handle_request(mut original_req: Request, target_url: Url) -> Result<Response> {
@@ -46,17 +37,12 @@ async fn handle_request(mut original_req: Request, target_url: Url) -> Result<Re
 
     let response = Fetch::Request(request).send().await?;
 
-    let mut cors = Cors::default();
+    let cors = Cors::default()
+        .with_origins(["*"])
+        .with_exposed_headers(response.headers().keys());
 
-    let original_req_origin = original_req.headers().get("Origin")?;
-    if let Some(original_req_origin) = original_req_origin {
-        cors = cors.with_origins([original_req_origin]);
-    }
-
-    let mut response = Response::from(response);
-    response = response.with_cors(&cors)?;
-    response.headers_mut().append("Vary", "Origin")?;
-    Ok(response)
+    let response = Response::from(response);
+    return response.with_cors(&cors);
 }
 
 #[event(fetch)]
@@ -64,11 +50,14 @@ pub async fn main(req: Request, _env: Env, _ctx: worker::Context) -> Result<Resp
     let raw_url = req.path();
     let method = req.method();
 
+    if method == Method::Options {
+        return handle_options(req);
+    }
+
     let target_url = Url::parse(&raw_url[1..raw_url.len()]);
 
     match raw_url.as_str() {
-        "/" if method == Method::Options => handle_options(req),
-        "/" if method == Method::Get => {
+        "/" => {
             let mut headers = Headers::new();
             headers.set("Content-Type", "text/plain")?;
             let response = Response::ok("https://cors.jg.ar/{url}")?;
