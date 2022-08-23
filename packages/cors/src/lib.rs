@@ -41,7 +41,6 @@ async fn handle_request(mut original_req: Request, target_url: Url) -> Result<Re
         .with_origins(["*"])
         .with_exposed_headers(response.headers().keys());
 
-    let response = Response::from(response);
     return response.with_cors(&cors);
 }
 
