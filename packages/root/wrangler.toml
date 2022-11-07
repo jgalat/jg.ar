@@ -1,13 +1,12 @@
 name = "root"
-compatibility_date = "2022-05-11"
+compatibility_date = "2022-04-05"
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "jg.ar/*"
 
-main = "build/index.js"
+main = "./build/index.js"
 
 [site]
-bucket = "./public"
+  bucket = "./public"
 
 [build]
-command = "npm run build"
-watch_dir = "app"
+  command = "npm run build"

@@ -2,8 +2,8 @@ import {
   createRequestHandler,
   handleAsset,
 } from "@remix-run/cloudflare-workers";
-import * as build from "@remix-run/dev/server-build";
 import { compile } from "html-to-text";
+import * as build from "@remix-run/dev/server-build";
 
 const htmlToText = compile({
   wordwrap: 80,

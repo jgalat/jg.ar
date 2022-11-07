@@ -1,4 +1,4 @@
-import type { MetaFunction, LinksFunction } from "remix";
+import type { MetaFunction, LinksFunction } from "@remix-run/cloudflare";
 import {
   Links,
   LiveReload,
@@ -6,7 +6,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "remix";
+  Link,
+} from "@remix-run/react";
 import styles from "styles/lib/global.css";
 
 export const meta: MetaFunction = () => {
@@ -34,6 +35,25 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+export function CatchBoundary() {
+  return (
+    <html lang="en">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <main>
+          <h1>Not found :(</h1>
+          <p>
+            <Link to="/">Go back to home</Link>
+          </p>
+        </main>
       </body>
     </html>
   );
