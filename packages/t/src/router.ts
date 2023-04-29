@@ -27,11 +27,20 @@ router.get("/auth", async (request) => {
 
 router.get("/callback", async (request) => {
   try {
-    const { query } = request;
-    const accessTokenResponse = await accessToken(
-      query?.oauth_token!,
-      query?.oauth_verifier!
-    );
+    const {
+      query: { oauth_token, oauth_verifier },
+    } = request;
+
+    if (
+      !oauth_token ||
+      !oauth_verifier ||
+      Array.isArray(oauth_token) ||
+      Array.isArray(oauth_verifier)
+    ) {
+      return new Response("bad request", { status: 400 });
+    }
+
+    const accessTokenResponse = await accessToken(oauth_token, oauth_verifier);
 
     await TwitterTokenStorage.put(
       accessTokenResponse.user_id,
