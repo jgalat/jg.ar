@@ -1,5 +1,8 @@
 name = "root"
+
 compatibility_date = "2022-04-05"
+compatibility_flags = ["streams_enable_constructors"]
+
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "jg.ar/*"
 

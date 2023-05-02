@@ -2,24 +2,25 @@ import {
   createRequestHandler,
   handleAsset,
 } from "@remix-run/cloudflare-workers";
-import { compile } from "html-to-text";
 import * as build from "@remix-run/dev/server-build";
 
-const htmlToText = compile({
-  wordwrap: 80,
-  selectors: [
-    { selector: "h1", options: { uppercase: false } },
-    { selector: "ul", options: { itemPrefix: "- " } },
-    { selector: "a", options: { ignoreHref: true } },
-  ],
-});
+const text = `
+Jorge Galat
+
+I'm a full stack developer based in Rosario, Argentina
+
+- https://github.com/jgalat
+- https://linkedin.com/in/jgalat
+- https://twitter.com/_jgalat
+
+`;
 
 const remixHandleRequest = createRequestHandler({
   build,
   mode: process.env.NODE_ENV,
 });
 
-const remixHandler = async (event) => {
+const remixHandler = async (event: FetchEvent) => {
   let response = await handleAsset(event, build);
 
   if (!response) {
@@ -29,23 +30,22 @@ const remixHandler = async (event) => {
   return response;
 };
 
-const handleEvent = async (event) => {
+const handleEvent = async (event: FetchEvent) => {
   const userAgent = event.request.headers.get("user-agent") || "";
-  const response = await remixHandler(event);
 
   if (
     event.request.method === "GET" &&
     userAgent.match(/(curl|libcurl|HTTPie)\//i)
   ) {
-    const html = await response.text();
-
-    return new Response(`\n${htmlToText(html)}\n\n`, {
+    return new Response(text, {
       status: 200,
       headers: { "Content-Type": "text/plain" },
     });
   }
 
-  return response;
+  return remixHandler(event);
 };
 
-addEventListener("fetch", (event) => event.respondWith(handleEvent(event)));
+addEventListener("fetch", (event: FetchEvent) =>
+  event.respondWith(handleEvent(event))
+);
