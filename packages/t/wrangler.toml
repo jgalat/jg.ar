@@ -1,16 +1,11 @@
 name = "t"
-compatibility_date = "2022-05-11"
-account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
+main = "src/index.ts"
+compatibility_date = "2023-05-30"
+
 route = "t.jg.ar/*"
 
-main = "dist/worker.js"
-
-kv_namespaces = [
- { binding = "TWITTER_TOKENS", id = "97d743b0a6e8469c86f74ef316abe38f", preview_id = "e52920d844d24897831a51aaeb9ce1d8" }
-]
+account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 
 [triggers]
 crons = ["0 12 * * THU"]
 
-[build]
-command = "webpack"
