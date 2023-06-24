@@ -2,7 +2,7 @@
 module.exports = {
   devServerBroadcastDelay: 1000,
   ignoredRouteFiles: ["**/.*"],
-  server: "./server.ts",
+  server: "./worker.ts",
   serverConditions: ["worker"],
   serverDependenciesToBundle: "all",
   serverMainFields: ["browser", "module", "main"],

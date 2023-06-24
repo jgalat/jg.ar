@@ -1,15 +1,11 @@
 name = "root"
-
-compatibility_date = "2022-04-05"
+compatibility_date = "2022-11-17"
 compatibility_flags = ["streams_enable_constructors"]
 
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "jg.ar/*"
 
-main = "./build/index.js"
+main = "build/index.js"
 
 [site]
-  bucket = "./public"
-
-[build]
-  command = "npm run build"
+bucket = "./public"
