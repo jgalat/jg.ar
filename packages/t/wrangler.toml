@@ -1,10 +1,9 @@
 name = "t"
 main = "src/index.ts"
-compatibility_date = "2023-05-30"
-
-route = "t.jg.ar/*"
+compatibility_date = "2023-04-20"
 
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
+route = "t.jg.ar/*"
 
 [triggers]
 crons = ["0 12 * * THU"]

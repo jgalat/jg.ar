@@ -1,11 +1,9 @@
 name = "root"
-compatibility_date = "2022-11-17"
-compatibility_flags = ["streams_enable_constructors"]
+main = "./build/index.js"
+compatibility_date = "2023-04-20"
 
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "jg.ar/*"
-
-main = "build/index.js"
 
 [site]
 bucket = "./public"

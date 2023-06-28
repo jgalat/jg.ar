@@ -5,7 +5,7 @@
   "description": "Thursday Twitter bot",
   "license": "MIT",
   "scripts": {
-    "dev": "wrangler dev --local",
+    "dev": "wrangler dev",
     "dev:scheduled": "wrangler dev --test-scheduled",
     "publish": "wrangler publish"
   },
@@ -14,6 +14,7 @@
     "oauth-1.0a": "^2.2.6"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^3.19.0",
     "@types/crypto-js": "^4.1.1"
   }
 }

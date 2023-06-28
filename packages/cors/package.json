@@ -5,8 +5,8 @@
   "description": "CORS Anywhere",
   "license": "MIT",
   "scripts": {
-    "dev": "wrangler dev --local",
-    "publish": "wrangler publish",
+    "dev": "wrangler dev",
+    "publish": "wrangler deploy",
     "tail": "wrangler tail"
   }
 }

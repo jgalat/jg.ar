@@ -11,7 +11,7 @@ license = "MIT"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-worker = "0.0.9"
+worker = "0.0.17"
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.

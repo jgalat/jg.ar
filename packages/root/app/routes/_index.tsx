@@ -1,5 +1,5 @@
-import Link from "components/link";
-import { UL, LI } from "components/list";
+import Link from "~/components/link";
+import { UL, LI } from "~/components/list";
 
 export default function Index() {
   return (
