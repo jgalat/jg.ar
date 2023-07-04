@@ -8,13 +8,14 @@ type Props = {
 } & React.HTMLProps<HTMLTableElement>;
 
 export default function Table({ hits, ...props }: Props) {
-  console.log(hits);
   return (
     <table className="min-w-full" {...props}>
       <thead>
         <tr>
           <th className="py-3 border-b-2 text-left leading-4">Title</th>
-          <th className="py-3 pl-2 border-b-2 text-left text-sm leading-4">Size</th>
+          <th className="py-3 pl-2 border-b-2 text-left text-sm leading-4">
+            Size
+          </th>
         </tr>
       </thead>
       <tbody>

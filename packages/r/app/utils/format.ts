@@ -1,5 +1,5 @@
-const units = ["kB", "MB", "GB", "TB"] as const;
 export function size(bytes: number): string {
+  const units = ["kB", "MB", "GB", "TB"] as const;
   const step = 1024;
   for (let i = 0; i < units.length; i++) {
     if (bytes < Math.pow(step, i + 2)) {

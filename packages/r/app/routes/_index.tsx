@@ -96,7 +96,6 @@ export default function Index() {
                       )}
                     </li>
                   ))}
-
                   <li>
                     {current === pages ? (
                       <span aria-hidden="true">{">>"}</span>
