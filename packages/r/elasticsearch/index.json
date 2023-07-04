@@ -1,0 +1,32 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "tokenizer": "whitespace",
+          "char_filter": ["replace_specials"],
+          "filter": ["lowercase", "trim"]
+        }
+      },
+      "char_filter": {
+        "replace_specials": {
+          "type": "pattern_replace",
+          "pattern": "[\\.\\[\\]\\(\\)\\{\\}\\*\\?\\+\\-\\^\\$\\|\\!\\:\\/\\\\]",
+          "replacement": " "
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "integer" },
+      "hash": { "type": "keyword" },
+      "title": { "type": "text", "analyzer": "custom_analyzer" },
+      "dt": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss" },
+      "cat": { "type": "keyword" },
+      "size": { "type": "long" },
+      "ext_id": { "type": "keyword" },
+      "imdb": { "type": "keyword" }
+    }
+  }
+}
