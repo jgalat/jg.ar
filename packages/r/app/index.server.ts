@@ -86,6 +86,7 @@ export default class Index {
 
   private query({ q, size = 20, page = 0 }: Index.Params): URLSearchParams {
     const query = q
+      .trim()
       .split(" ")
       .map((s) => s.trim())
       .join(" AND ");
