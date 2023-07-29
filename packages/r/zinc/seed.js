@@ -1,10 +1,5 @@
-import { Client } from "@elastic/elasticsearch";
 import fs from "fs";
 import csv from "csv-parser";
-
-const client = new Client({
-  node: process.env.ELASTICSEARCH_URL,
-});
 
 const doc = (row) => ({
   id: row.id,
@@ -17,21 +12,34 @@ const doc = (row) => ({
   imdb: row.imdb,
 });
 
+const url = new URL(process.env.ZINC_URL);
+
 const bulk = async (data) => {
-  const body = data.flatMap((doc) => [
+  const rows = data.flatMap((doc) => [
     { index: { _index: "torrents", _id: doc.id } },
     doc,
   ]);
 
-  const { body: bulkResponse } = await client.bulk({ refresh: true, body });
+  const body = rows.map((row) => JSON.stringify(row)).join("\n");
 
-  if (bulkResponse.errors) {
-    console.error("Encountered errors during bulk indexing");
-  }
+  const request = new Request(
+    `${url.protocol}//${url.host}${url.pathname}es/_bulk`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Basic " + btoa(url.username + ":" + url.password),
+      },
+      body,
+    }
+  );
+
+  const response = await fetch(request);
+
+  console.log(response.ok ? "OK" : "ERROR", response.status);
 };
 
 const data = [];
-const chunkSize = 5000;
+const chunkSize = 10000;
 
 fs.createReadStream(process.argv[2])
   .pipe(csv())

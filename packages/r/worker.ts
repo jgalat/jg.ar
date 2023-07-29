@@ -32,7 +32,7 @@ export default {
     request: Request,
     env: {
       __STATIC_CONTENT: Fetcher;
-      ELASTICSEARCH_URL: string;
+      ZINC_URL: string;
       TOKEN: string;
     },
     ctx: ExecutionContext
@@ -65,7 +65,7 @@ export default {
       );
     } catch (error) {}
 
-    const index = new Index(env.ELASTICSEARCH_URL);
+    const index = new Index(env.ZINC_URL);
 
     try {
       const loadContext: AppLoadContext = {

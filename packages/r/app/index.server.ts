@@ -1,8 +1,8 @@
 export namespace Index {
   export type Params = {
     q: string;
-    size?: number;
-    page?: number;
+    size: number;
+    page: number;
   };
 
   export type Response =
@@ -69,42 +69,46 @@ export default class Index {
     this.URL = new URL(url);
   }
 
-  private init(path: string): Request {
+  private request(path: string, body?: BodyInit | null): Request {
     return new Request(
       `${this.URL.protocol}//${this.URL.host}${this.URL.pathname}${path}`,
       {
-        method: "GET",
+        method: "POST",
         headers: {
           Authorization:
             "Basic " + btoa(this.URL.username + ":" + this.URL.password),
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        body,
       }
     );
   }
 
-  private query({ q, size = 20, page = 0 }: Index.Params): URLSearchParams {
-    const query = q
-      .trim()
-      .split(" ")
-      .map((s) => s.trim())
-      .join(" AND ");
-    const categories = this.cats.map((c) => "cat:" + c).join(" OR ");
-
-    const sp = new URLSearchParams();
-    sp.append("q", `title:(${query}) AND (${categories})`);
-    sp.append("size", String(size));
-    sp.append("from", String(page * size));
-
-    return sp;
-  }
-
   async search(params: Index.Params): Promise<Index.Response> {
-    const init = this.init("/torrents/_search");
-    const query = this.query(params);
+    const request = this.request(
+      "/es/torrents/_search",
+      JSON.stringify({
+        query: {
+          bool: {
+            must: params.q
+              .trim()
+              .split(" ")
+              .map((tok) => ({ match: { title: tok } })),
+            filter: [
+              {
+                terms: {
+                  cat: this.cats,
+                },
+              },
+            ],
+          },
+        },
+        size: params.size,
+        from: params.page * params.size,
+      })
+    );
 
-    const request = new Request(init.url + "?" + query, init);
     const response = await fetch(request);
 
     if (!response.ok) {
