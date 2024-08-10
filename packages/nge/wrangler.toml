@@ -1,0 +1,17 @@
+name = "nge"
+main = "./src/index.ts"
+compatibility_date = "2022-10-10"
+
+[triggers]
+crons = ["0 * * * *"]
+
+[[r2_buckets]]
+binding = "frames"
+bucket_name = "nge-frames"
+preview_bucket_name = "nge-frames"
+
+[[d1_databases]]
+binding = "db"
+database_name = "ngeframes"
+database_id = "edfec632-9d8c-4afb-8480-29ea3cc7f032"
+
