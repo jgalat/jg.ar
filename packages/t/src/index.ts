@@ -40,7 +40,7 @@ class Twitter {
 			throw new Error("something went wrong");
 		}
 
-		return new Response(await response.json());
+		return response.json();
 	}
 }
 
