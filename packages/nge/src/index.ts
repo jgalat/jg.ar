@@ -139,7 +139,7 @@ export default {
 		ctx: ExecutionContext
 	): Promise<Response> {
 		return new Response(
-			"I post Neon Genesis Evangelion Frames every hour @nge_frames"
+			"I post Neon Genesis Evangelion frames every 30 minutes @nge_frames"
 		);
 	},
 
