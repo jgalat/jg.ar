@@ -49,8 +49,8 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-white text-black dark:bg-black dark:text-white max-w-xl m-auto">
-        <main className="p-6">
+      <body>
+        <main>
           <Outlet />
         </main>
         <ScrollRestoration />
