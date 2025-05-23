@@ -37,7 +37,7 @@ class Twitter {
 
 		const response = await fetch(request);
 		if (!response.ok) {
-			throw new Error("something went wrong");
+			throw new Error("failed to tweet");
 		}
 
 		return response.json();
@@ -63,7 +63,7 @@ class Twitter {
 
 		const response = await fetch(request);
 		if (!response.ok) {
-			throw new Error("something went wrong");
+			throw new Error("failed to upload");
 		}
 
 		return response.json();
