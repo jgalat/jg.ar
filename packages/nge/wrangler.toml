@@ -3,7 +3,8 @@ main = "./src/index.ts"
 compatibility_date = "2022-10-10"
 
 [triggers]
-crons = ["*/30 * * * *"]
+# crons = ["*/30 * * * *"]
+crons = ["0 */2 * * *"]
 
 [[r2_buckets]]
 binding = "frames"
