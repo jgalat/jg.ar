@@ -138,6 +138,10 @@ export default {
 		env: Env,
 		ctx: ExecutionContext
 	): Promise<Response> {
+		const url = new URL(request.url);
+		if (url.pathname === "/__trigger") {
+			ctx.waitUntil(post(env));
+		}
 		return new Response(
 			"I post Neon Genesis Evangelion frames every 30 minutes @nge_frames"
 		);
