@@ -37,7 +37,8 @@ class Twitter {
 
 		const response = await fetch(request);
 		if (!response.ok) {
-			throw new Error("failed to tweet");
+			console.error(`api: ${await response.text()}`);
+			throw new Error(`failed to tweet. status = ${response.status}`);
 		}
 
 		return response.json();
@@ -63,7 +64,8 @@ class Twitter {
 
 		const response = await fetch(request);
 		if (!response.ok) {
-			throw new Error("failed to upload");
+			console.error(`api: ${await response.text()}`);
+			throw new Error(`failed to upload. status = ${response.status}`);
 		}
 
 		return response.json();
@@ -134,9 +136,9 @@ async function post(env: Env) {
 
 export default {
 	async fetch(
-		request: Request,
-		env: Env,
-		ctx: ExecutionContext
+		_request: Request,
+		_env: Env,
+		_ctx: ExecutionContext
 	): Promise<Response> {
 		return new Response(
 			"I post Neon Genesis Evangelion frames every hour @nge_frames"
@@ -144,7 +146,7 @@ export default {
 	},
 
 	async scheduled(
-		controller: ScheduledController,
+		_controller: ScheduledController,
 		env: Env,
 		ctx: ExecutionContext
 	) {
