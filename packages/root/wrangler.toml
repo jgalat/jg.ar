@@ -1,9 +1,11 @@
 name = "root"
-main = "./build/index.js"
-compatibility_date = "2023-04-20"
+main = "build/index.js"
+compatibility_date = "2025-11-10"
 
 account_id = "e5d555f9d1fca923675e48bf46bb2a6d"
 route = "jg.ar/*"
+workers_dev = false
+preview_urls = false
 
-[site]
-bucket = "./public"
+[build]
+command = "cargo install -q worker-build && worker-build --release"
