@@ -6,11 +6,14 @@ async fn fetch(req: Request, _env: Env, _ctx: Context) -> Result<Response> {
         "/robots.txt" => Ok(robots_txt_response()),
         "/sitemap.xml" => Ok(sitemap_xml_response()),
         _ => {
-            let user_agent = req
-                .headers()
-                .get("User-Agent")?
-                .unwrap_or_default()
-                .to_lowercase();
+            let headers = req.headers();
+
+            let accept = headers.get("Accept")?.unwrap_or_default().to_lowercase();
+            if accept.contains("text/plain") || accept.contains("text/markdown") {
+                return Ok(llm_response());
+            }
+
+            let user_agent = headers.get("User-Agent")?.unwrap_or_default().to_lowercase();
 
             if is_cli_agent(&user_agent) {
                 return Ok(cli_response());
@@ -49,17 +52,24 @@ fn is_llm_agent(user_agent: &str) -> bool {
 }
 
 fn cli_response() -> Response {
-    let text = r#"
-Jorge Galat
+    const BOLD: &str = "\x1b[1m";
+    const DIM: &str = "\x1b[2m";
+    const RESET: &str = "\x1b[0m";
 
-I'm a full stack developer based in Rosario, Argentina
+    let text = format!(
+        r#"
+{BOLD}Jorge Galat{RESET}
 
-- https://github.com/jgalat
-- https://linkedin.com/in/jgalat
-- https://x.com/_jgalat
+{DIM}I'm a full stack developer based in Rosario, Argentina{RESET}
 
-Contact: hello@jg.ar
-"#;
+{BOLD}-{RESET} https://github.com/jgalat
+{BOLD}-{RESET} https://linkedin.com/in/jgalat
+{BOLD}-{RESET} https://x.com/_jgalat
+
+{BOLD}Contact:{RESET} hello@jg.ar
+
+"#
+    );
 
     let headers = Headers::new();
     headers
