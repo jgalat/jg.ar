@@ -5,6 +5,7 @@ async fn fetch(req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     match req.url()?.path().to_lowercase().as_str() {
         "/robots.txt" => Ok(robots_txt_response()),
         "/sitemap.xml" => Ok(sitemap_xml_response()),
+        "/app-ads.txt" => Ok(app_ads_txt_response()),
         _ => {
             let headers = req.headers();
 
@@ -128,6 +129,20 @@ LinkedIn: https://linkedin.com/in/jgalat
         .unwrap();
 
     Response::ok(text).unwrap().with_headers(headers)
+}
+
+fn app_ads_txt_response() -> Response {
+    let app_ads_txt = "google.com, pub-2650166373797832, DIRECT, f08c47fec0942fa0\n";
+
+    let headers = Headers::new();
+    headers
+        .set("Content-Type", "text/plain; charset=utf-8")
+        .unwrap();
+    headers
+        .set("Cache-Control", "public, max-age=86400")
+        .unwrap();
+
+    Response::ok(app_ads_txt).unwrap().with_headers(headers)
 }
 
 fn robots_txt_response() -> Response {
