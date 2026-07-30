@@ -1,78 +1,216 @@
-use wasm_bindgen::JsValue;
+use worker::wasm_bindgen::JsValue;
 use worker::*;
 
-fn handle_options(req: Request) -> Result<Response> {
-    let headers = req.headers();
-    let cors = Cors::default()
-        .with_origins(["*"])
-        .with_methods([Method::Get, Method::Head, Method::Post, Method::Options])
-        .with_max_age(86400)
-        .with_allowed_headers(headers.get("Access-Control-Request-Headers")?)
-        .with_exposed_headers(headers.keys());
-
-    return Response::empty()?.with_cors(&cors);
-}
-
-async fn handle_request(mut original_req: Request, target_url: Url) -> Result<Response> {
-    let target_origin = target_url
-        .domain()
-        .ok_or(Error::from("target origin undefined"))?;
-
-    let request_init_body = original_req.text().await.ok().and_then(|s| {
-        if s == "" {
-            None
-        } else {
-            Some(JsValue::from_str(s.as_str()))
-        }
-    });
-
-    let mut request_init = RequestInit::new();
-    request_init
-        .with_headers(original_req.headers().clone())
-        .with_method(original_req.method())
-        .with_body(request_init_body);
-
-    let mut request = Request::new_with_init(target_url.as_str(), &request_init)?;
-    request.headers_mut()?.set("Origin", target_origin)?;
-
-    let response = Fetch::Request(request).send().await?;
-
-    let cors = Cors::default()
-        .with_origins(["*"])
-        .with_exposed_headers(response.headers().keys());
-
-    return response.with_cors(&cors);
-}
+const ALLOWED_METHODS: &str = "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS";
+const PROXY_HOST: &str = "cors.jg.ar";
 
 #[event(fetch)]
-pub async fn main(req: Request, _env: Env, _ctx: worker::Context) -> Result<Response> {
-    let raw_url = req.path();
-    let method = req.method();
-
-    if method == Method::Options {
-        return handle_options(req);
+pub async fn main(req: Request, _env: Env, _ctx: Context) -> Result<Response> {
+    if req.method() == Method::Options {
+        return handle_options(&req);
     }
 
-    let target_url = Url::parse(&raw_url[1..raw_url.len()]);
+    if req.path() == "/" {
+        return cors_response(text_response(
+            "https://cors.jg.ar/{absolute-http-or-https-url}",
+            200,
+        )?);
+    }
 
-    match raw_url.as_str() {
-        "/" => {
-            let mut headers = Headers::new();
-            headers.set("Content-Type", "text/plain")?;
-            let response = Response::ok("https://cors.jg.ar/{url}")?;
-            Ok(response.with_headers(headers))
-        }
-        _ if target_url.is_err() => {
-            Response::error(format!("bad request: {}", target_url.err().unwrap()), 400)
-        }
-        _ => {
-            let response = handle_request(req, target_url.unwrap()).await;
+    if !is_supported_method(&req.method()) {
+        return cors_response(method_not_allowed()?);
+    }
 
-            if let Err(err) = response {
-                return Response::error(format!("internal server error: {}", err), 500);
-            }
+    let target = match parse_target(&req.path(), req.url()?.query()) {
+        Ok(target) => target,
+        Err(error) => return cors_response(text_response(&error.to_string(), 400)?),
+    };
 
-            response
+    match proxy(req, &target).await {
+        Ok(response) => cors_response(response),
+        Err(error) => {
+            console_error!(
+                "{}",
+                serde_json::json!({
+                    "message": "upstream request failed",
+                    "error": error.to_string(),
+                })
+            );
+            cors_response(text_response("bad gateway", 502)?)
         }
+    }
+}
+
+fn handle_options(req: &Request) -> Result<Response> {
+    if let Some(method) = req.headers().get("Access-Control-Request-Method")?
+        && !is_supported_method_name(&method)
+    {
+        return cors_response(method_not_allowed()?);
+    }
+
+    let headers = Headers::new();
+    apply_cors_headers(&headers)?;
+    headers.set("Access-Control-Max-Age", "86400")?;
+
+    if let Some(requested_headers) = req.headers().get("Access-Control-Request-Headers")? {
+        headers.set("Access-Control-Allow-Headers", &requested_headers)?;
+    }
+
+    Ok(Response::empty()?.with_status(204).with_headers(headers))
+}
+
+async fn proxy(req: Request, target: &Url) -> Result<Response> {
+    let method = req.method();
+    let headers = outbound_headers(req.headers(), target)?;
+    let body = if matches!(method, Method::Get | Method::Head) {
+        None
+    } else {
+        req.inner().body().map(JsValue::from)
+    };
+
+    let mut init = RequestInit::new();
+    init.with_method(method)
+        .with_headers(headers)
+        .with_body(body);
+
+    let outbound = Request::new_with_init(target.as_str(), &init)?;
+    Fetch::Request(outbound).send().await
+}
+
+fn outbound_headers(incoming: &Headers, target: &Url) -> Result<Headers> {
+    let headers = incoming.clone();
+
+    for name in [
+        "cf-connecting-ip",
+        "cf-connecting-ipv6",
+        "cf-ipcountry",
+        "cf-ray",
+        "cf-visitor",
+        "cf-worker",
+        "connection",
+        "content-length",
+        "host",
+        "keep-alive",
+        "origin",
+        "proxy-authenticate",
+        "proxy-authorization",
+        "sec-fetch-dest",
+        "sec-fetch-mode",
+        "sec-fetch-site",
+        "sec-fetch-user",
+        "te",
+        "trailer",
+        "transfer-encoding",
+        "upgrade",
+        "x-forwarded-for",
+        "x-forwarded-proto",
+        "x-real-ip",
+    ] {
+        headers.delete(name)?;
+    }
+
+    headers.set("Origin", &target.origin().ascii_serialization())?;
+    Ok(headers)
+}
+
+fn parse_target(path: &str, query: Option<&str>) -> Result<Url> {
+    let raw_target = path
+        .strip_prefix('/')
+        .filter(|target| !target.is_empty())
+        .ok_or_else(|| Error::RustError("target URL is required".into()))?;
+    let mut target = Url::parse(raw_target)
+        .map_err(|error| Error::RustError(format!("invalid target URL: {error}")))?;
+
+    if !matches!(target.scheme(), "http" | "https") {
+        return Err(Error::RustError("target URL must use HTTP or HTTPS".into()));
+    }
+
+    if !target.username().is_empty() || target.password().is_some() {
+        return Err(Error::RustError(
+            "target URL must not contain user information".into(),
+        ));
+    }
+
+    let host = target
+        .host_str()
+        .ok_or_else(|| Error::RustError("target URL must contain a host".into()))?;
+
+    if host.eq_ignore_ascii_case(PROXY_HOST) {
+        return Err(Error::RustError(
+            "recursive proxy requests are not allowed".into(),
+        ));
+    }
+
+    target.set_query(query);
+    Ok(target)
+}
+
+fn is_supported_method(method: &Method) -> bool {
+    matches!(
+        method,
+        Method::Get | Method::Head | Method::Post | Method::Put | Method::Patch | Method::Delete
+    )
+}
+
+fn is_supported_method_name(method: &str) -> bool {
+    matches!(
+        method.to_ascii_uppercase().as_str(),
+        "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE"
+    )
+}
+
+fn method_not_allowed() -> Result<Response> {
+    let headers = Headers::new();
+    headers.set("Allow", ALLOWED_METHODS)?;
+    Ok(Response::error("method not allowed", 405)?.with_headers(headers))
+}
+
+fn text_response(message: &str, status: u16) -> Result<Response> {
+    let headers = Headers::new();
+    headers.set("Content-Type", "text/plain; charset=utf-8")?;
+    headers.set("Cache-Control", "no-store")?;
+    Ok(Response::ok(message)?
+        .with_status(status)
+        .with_headers(headers))
+}
+
+fn cors_response(response: Response) -> Result<Response> {
+    let headers = response.headers().clone();
+    apply_cors_headers(&headers)?;
+    Ok(response.with_headers(headers))
+}
+
+fn apply_cors_headers(headers: &Headers) -> Result<()> {
+    headers.set("Access-Control-Allow-Origin", "*")?;
+    headers.set("Access-Control-Allow-Methods", ALLOWED_METHODS)?;
+    headers.set("Access-Control-Expose-Headers", "*")?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_target_and_preserves_query() {
+        let target = parse_target("/https://example.com/api", Some("page=2")).unwrap();
+
+        assert_eq!(target.as_str(), "https://example.com/api?page=2");
+    }
+
+    #[test]
+    fn rejects_unsupported_schemes() {
+        assert!(parse_target("/ftp://example.com/file", None).is_err());
+    }
+
+    #[test]
+    fn rejects_recursive_requests() {
+        assert!(parse_target("/https://cors.jg.ar/https://example.com", None).is_err());
+    }
+
+    #[test]
+    fn recognizes_supported_methods() {
+        assert!(is_supported_method_name("patch"));
+        assert!(!is_supported_method_name("CONNECT"));
     }
 }

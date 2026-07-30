@@ -2,31 +2,68 @@ use worker::*;
 
 #[event(fetch)]
 async fn fetch(req: Request, _env: Env, _ctx: Context) -> Result<Response> {
-    match req.url()?.path().to_lowercase().as_str() {
-        "/robots.txt" => Ok(robots_txt_response()),
-        "/sitemap.xml" => Ok(sitemap_xml_response()),
-        "/app-ads.txt" => Ok(app_ads_txt_response()),
-        _ => {
-            let headers = req.headers();
-
-            let accept = headers.get("Accept")?.unwrap_or_default().to_lowercase();
-            if accept.contains("text/plain") || accept.contains("text/markdown") {
-                return Ok(llm_response());
-            }
-
-            let user_agent = headers.get("User-Agent")?.unwrap_or_default().to_lowercase();
-
-            if is_cli_agent(&user_agent) {
-                return Ok(cli_response());
-            }
-
-            if is_llm_agent(&user_agent) {
-                return Ok(llm_response());
-            }
-
-            Ok(html_response())
-        }
+    let method = req.method();
+    if !matches!(method, Method::Get | Method::Head) {
+        return method_not_allowed();
     }
+
+    let path = req.url()?.path().to_lowercase();
+    let response = match path.as_str() {
+        "/" => root_response(&req)?,
+        "/app-ads.txt" => app_ads_txt_response()?,
+        "/robots.txt" => robots_txt_response()?,
+        "/sitemap.xml" => sitemap_xml_response()?,
+        _ => not_found()?,
+    };
+
+    if method == Method::Head {
+        let (builder, _) = response.into_parts();
+        return Ok(builder.empty());
+    }
+
+    Ok(response)
+}
+
+fn root_response(req: &Request) -> Result<Response> {
+    let accept = req
+        .headers()
+        .get("Accept")?
+        .unwrap_or_default()
+        .to_lowercase();
+    let user_agent = req
+        .headers()
+        .get("User-Agent")?
+        .unwrap_or_default()
+        .to_lowercase();
+
+    match representation(&accept, &user_agent) {
+        Representation::Cli => cli_response(),
+        Representation::Llm => llm_response(),
+        Representation::Html => html_response(),
+    }
+}
+
+#[derive(Debug, PartialEq)]
+enum Representation {
+    Cli,
+    Html,
+    Llm,
+}
+
+fn representation(accept: &str, user_agent: &str) -> Representation {
+    if accept.contains("text/plain") || accept.contains("text/markdown") {
+        return Representation::Llm;
+    }
+
+    if is_cli_agent(user_agent) {
+        return Representation::Cli;
+    }
+
+    if is_llm_agent(user_agent) {
+        return Representation::Llm;
+    }
+
+    Representation::Html
 }
 
 fn is_cli_agent(user_agent: &str) -> bool {
@@ -52,7 +89,7 @@ fn is_llm_agent(user_agent: &str) -> bool {
         || user_agent.contains("copilot")
 }
 
-fn cli_response() -> Response {
+fn cli_response() -> Result<Response> {
     const BOLD: &str = "\x1b[1m";
     const DIM: &str = "\x1b[2m";
     const RESET: &str = "\x1b[0m";
@@ -72,15 +109,17 @@ fn cli_response() -> Response {
 "#
     );
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "text/plain; charset=utf-8")
-        .unwrap();
-
-    Response::ok(text).unwrap().with_headers(headers)
+    static_response(
+        text,
+        "text/plain; charset=utf-8",
+        "public, max-age=3600",
+        true,
+        false,
+        200,
+    )
 }
 
-fn llm_response() -> Response {
+fn llm_response() -> Result<Response> {
     let text = r#"# Jorge Galat - Software Developer
 
 ## Personal Information
@@ -123,46 +162,46 @@ GitHub: https://github.com/jgalat
 LinkedIn: https://linkedin.com/in/jgalat
 "#;
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "text/plain; charset=utf-8")
-        .unwrap();
-
-    Response::ok(text).unwrap().with_headers(headers)
+    static_response(
+        text,
+        "text/plain; charset=utf-8",
+        "public, max-age=3600",
+        true,
+        false,
+        200,
+    )
 }
 
-fn app_ads_txt_response() -> Response {
+fn app_ads_txt_response() -> Result<Response> {
     let app_ads_txt = "google.com, pub-2650166373797832, DIRECT, f08c47fec0942fa0\n";
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "text/plain; charset=utf-8")
-        .unwrap();
-    headers
-        .set("Cache-Control", "public, max-age=86400")
-        .unwrap();
-
-    Response::ok(app_ads_txt).unwrap().with_headers(headers)
+    static_response(
+        app_ads_txt,
+        "text/plain; charset=utf-8",
+        "public, max-age=86400",
+        false,
+        false,
+        200,
+    )
 }
 
-fn robots_txt_response() -> Response {
+fn robots_txt_response() -> Result<Response> {
     let robots_txt = r#"User-agent: *
 Allow: /
 
 Sitemap: https://jg.ar/sitemap.xml"#;
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "text/plain; charset=utf-8")
-        .unwrap();
-    headers
-        .set("Cache-Control", "public, max-age=86400")
-        .unwrap();
-
-    Response::ok(robots_txt).unwrap().with_headers(headers)
+    static_response(
+        robots_txt,
+        "text/plain; charset=utf-8",
+        "public, max-age=86400",
+        false,
+        false,
+        200,
+    )
 }
 
-fn sitemap_xml_response() -> Response {
+fn sitemap_xml_response() -> Result<Response> {
     let sitemap = r#"<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
@@ -173,18 +212,17 @@ fn sitemap_xml_response() -> Response {
     </url>
 </urlset>"#;
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "application/xml; charset=utf-8")
-        .unwrap();
-    headers
-        .set("Cache-Control", "public, max-age=86400")
-        .unwrap();
-
-    Response::ok(sitemap).unwrap().with_headers(headers)
+    static_response(
+        sitemap,
+        "application/xml; charset=utf-8",
+        "public, max-age=86400",
+        false,
+        false,
+        200,
+    )
 }
 
-fn html_response() -> Response {
+fn html_response() -> Result<Response> {
     let html = r#"<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -278,13 +316,94 @@ fn html_response() -> Response {
 </body>
 </html>"#;
 
-    let headers = Headers::new();
-    headers
-        .set("Content-Type", "text/html; charset=utf-8")
-        .unwrap();
-    headers
-        .set("Cache-Control", "public, max-age=3600")
-        .unwrap();
+    static_response(
+        html,
+        "text/html; charset=utf-8",
+        "public, max-age=3600",
+        true,
+        true,
+        200,
+    )
+}
 
-    Response::ok(html).unwrap().with_headers(headers)
+fn static_response(
+    body: impl Into<String>,
+    content_type: &str,
+    cache_control: &str,
+    vary: bool,
+    content_security_policy: bool,
+    status: u16,
+) -> Result<Response> {
+    let headers = Headers::new();
+    headers.set("Cache-Control", cache_control)?;
+    headers.set("Content-Type", content_type)?;
+    headers.set("Referrer-Policy", "no-referrer")?;
+    headers.set("X-Content-Type-Options", "nosniff")?;
+    headers.set("X-Frame-Options", "DENY")?;
+
+    if vary {
+        headers.set("Vary", "Accept, User-Agent")?;
+    }
+
+    if content_security_policy {
+        headers.set(
+            "Content-Security-Policy",
+            "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        )?;
+    }
+
+    Ok(Response::ok(body)?
+        .with_status(status)
+        .with_headers(headers))
+}
+
+fn method_not_allowed() -> Result<Response> {
+    let response = static_response(
+        "method not allowed",
+        "text/plain; charset=utf-8",
+        "no-store",
+        false,
+        false,
+        405,
+    )?;
+    let headers = response.headers().clone();
+    headers.set("Allow", "GET, HEAD")?;
+    Ok(response.with_headers(headers))
+}
+
+fn not_found() -> Result<Response> {
+    static_response(
+        "not found",
+        "text/plain; charset=utf-8",
+        "no-store",
+        false,
+        false,
+        404,
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn negotiates_markdown_for_plain_text() {
+        assert_eq!(
+            representation("text/plain", "mozilla/5.0"),
+            Representation::Llm
+        );
+    }
+
+    #[test]
+    fn negotiates_cli_output_for_curl() {
+        assert_eq!(representation("*/*", "curl/8.0.0"), Representation::Cli);
+    }
+
+    #[test]
+    fn defaults_to_html() {
+        assert_eq!(
+            representation("text/html", "mozilla/5.0"),
+            Representation::Html
+        );
+    }
 }

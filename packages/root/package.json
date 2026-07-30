@@ -1,8 +1,8 @@
 {
-  "name": "ip",
+  "name": "root",
   "version": "1.0.0",
   "author": "Jorge Galat <jrgglt@gmail.com>",
-  "description": "It returns your IP",
+  "description": "Jorge Galat's personal website",
   "license": "MIT",
   "private": true,
   "scripts": {

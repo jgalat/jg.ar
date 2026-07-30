@@ -1,12 +1,17 @@
 [package]
 name = "root"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Jorge Galat <jrgglt@gmail.com>"]
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-worker = { version = "0.8.1" }
-worker-macros = { version = "0.8.1" }
+worker = "0.8.5"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

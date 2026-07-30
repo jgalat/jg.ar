@@ -4,9 +4,11 @@
   "author": "Jorge Galat <jrgglt@gmail.com>",
   "description": "CORS Anywhere",
   "license": "MIT",
+  "private": true,
   "scripts": {
+    "build": "cargo install -q worker-build --version 0.8.5 --locked && worker-build --release --no-panic-recovery",
+    "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "publish": "wrangler deploy",
     "tail": "wrangler tail"
   }
 }
